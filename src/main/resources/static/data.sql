@@ -1,0 +1,1 @@
+INSERT INTO app_roles (name) VALUES ('USER')

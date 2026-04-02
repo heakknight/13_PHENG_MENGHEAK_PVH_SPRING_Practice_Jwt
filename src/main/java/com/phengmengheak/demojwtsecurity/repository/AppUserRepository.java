@@ -28,11 +28,18 @@ public interface AppUserRepository {
     """)
     List<String> getAllRolesByUserId(Long userId);
 
+    @Insert("""
+        INSERT INTO app_user_role (user_id, role_id)
+        VALUES (#{userId}, (SELECT role_id FROM app_roles WHERE name = #{roleName}))
+    """)
+    void assignRoleToUser(@Param("userId") Long userId, @Param("roleName") String roleName);
+
     @Select("""
                 INSERT INTO app_users
                 VALUES (default, #{request.username}, #{request.email}, #{request.password})
                 RETURNING *
             """)
+    @ResultMap("appUserMapper")
     AppUser register(@Param("request") AppUserRequest request);
 
     @Select("""

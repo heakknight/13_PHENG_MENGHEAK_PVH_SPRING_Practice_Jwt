@@ -13,6 +13,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @NullMarked
 @RequiredArgsConstructor
@@ -24,5 +26,26 @@ public class AppUserServiceImpl implements AppUserService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return appUserRepository.getUserByEmail(email);
+    }
+
+    @Override
+    public AppUserResponse registerUser(AppUserRequest request) {
+        String encodedPassword = passwordEncoder.encode(request.getPassword());
+        request.setPassword(encodedPassword); // replace plain text with the hash
+
+        // 2. Save the user to the database (your existing method)
+        AppUser savedUser = appUserRepository.register(request);
+
+        // 3. Assign a default role to the new user so they aren't locked out
+        appUserRepository.assignRoleToUser(savedUser.getUserId(), "USER");
+
+        // 4. Return the response (without exposing the password!)
+        AppUserResponse response = new AppUserResponse();
+        response.setId(Math.toIntExact(savedUser.getUserId()));
+        response.setFullName(savedUser.getFullName());
+        response.setEmail(savedUser.getEmail());
+        response.setRoles(List.of("USER"));
+
+        return response;
     }
 }

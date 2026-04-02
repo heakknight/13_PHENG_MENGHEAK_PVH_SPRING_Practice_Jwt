@@ -1,7 +1,9 @@
 package com.phengmengheak.demojwtsecurity.controller;
 
 import com.phengmengheak.demojwtsecurity.jwt.JwtService;
+import com.phengmengheak.demojwtsecurity.model.request.AppUserRequest;
 import com.phengmengheak.demojwtsecurity.model.request.AuthRequest;
+import com.phengmengheak.demojwtsecurity.model.response.AppUserResponse;
 import com.phengmengheak.demojwtsecurity.model.response.AuthResponse;
 import com.phengmengheak.demojwtsecurity.service.AppUserService;
 import lombok.RequiredArgsConstructor;
@@ -41,5 +43,11 @@ public class AuthController {
         final String token = jwtService.generateToken(userDetails);
         AuthResponse authResponse = new AuthResponse(token);
         return ResponseEntity.ok(authResponse);
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<AppUserResponse> register(@RequestBody AppUserRequest request) {
+        AppUserResponse savedUser = appUserService.registerUser(request);
+        return ResponseEntity.ok(savedUser);
     }
 }
